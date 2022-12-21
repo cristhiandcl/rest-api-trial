@@ -1,42 +1,72 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Api = () => {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
+  const client = axios.create({
+    baseURL: "https://jsonplaceholder.typicode.com/posts",
+  });
+
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts?_limit=10")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setPosts(data);
+    //fetch
+    // fetch("https://jsonplaceholder.typicode.com/posts?_limit=10")
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log(data);
+    //     setPosts(data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err.message);
+    //   });
+
+    //axios
+    client
+      .get("?_limit=10")
+      .then((response) => {
+        setPosts(response.data);
       })
-      .catch((err) => {
-        console.log(err.message);
-      });
+      .catch((error) => console.log(error.message));
   }, []);
 
-  const addPosts = async (title, body) => {
-    await fetch("https://jsonplaceholder.typicode.com/posts", {
-      method: "POST",
-      body: JSON.stringify({
+  //fetch
+  // const addPosts = async (title, body) => {
+  // await fetch("https://jsonplaceholder.typicode.com/posts", {
+  //   method: "POST",
+  //   body: JSON.stringify({
+  //     title: title,
+  //     body: body,
+  //     userId: Math.random().toString(36).slice(2),
+  //   }),
+  //   headers: {
+  //     "Content-type": "application/json; charset=UTF-8",
+  //   },
+  // })
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     setPosts((posts) => [data, ...posts]);
+  //     setTitle("");
+  //     setBody("");
+  //   })
+  //   .catch((err) => {
+  //     console.log(err.message);
+  //   });
+
+  // };
+
+  //axios
+  const addPosts = (title, body) => {
+    client
+      .post("", {
         title: title,
         body: body,
-        userId: Math.random().toString(36).slice(2),
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setPosts((posts) => [data, ...posts]);
+      })
+      .then((response) => {
+        setPosts((posts) => [response.data, ...posts]);
         setTitle("");
         setBody("");
-      })
-      .catch((err) => {
-        console.log(err.message);
       });
   };
 
@@ -45,18 +75,29 @@ const Api = () => {
     addPosts(title, body);
   };
 
-  const deletePost = async (id) => {
-    await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          setPosts(posts.filter((post) => post.id !== id));
-        }
+  //fetch
+  // const deletePost = async (id) => {
+  //   await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
+  //     method: "DELETE",
+  //   })
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         setPosts(posts.filter((post) => post.id !== id));
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.message);
+  //     });
+  // };
+
+  //axios
+  const deletePost = (id) => {
+    client.delete(`${id}`);
+    setPosts(
+      posts.filter((post) => {
+        return post.id !== id;
       })
-      .catch((err) => {
-        console.log(err.message);
-      });
+    );
   };
 
   const postsRender = posts.map((post) => (
